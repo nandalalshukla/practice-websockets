@@ -3,8 +3,8 @@ import { createServer } from "node:http";
 import { Server } from "socket.io";
 import cors from "cors";
 
-
 const app = express();
+
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -12,7 +12,9 @@ app.use(
     credentials: true,
   }),
 );
+
 const server = createServer(app);
+
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
@@ -20,18 +22,32 @@ const io = new Server(server, {
   },
 });
 
-
 app.get("/", (req, res) => {
   res.send("<h1>Hello world</h1>");
 });
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
-  socket.on("chat message", (msg) => {
-    console.log("message: " + msg);
+  console.log("a user connected:", socket.id);
+
+  socket.on("set username", (username) => {
+    socket.username = username;
+    console.log(`User ${username} set their name`);
   });
+  //receive message from the frontend
+  socket.on("chat message", (data) => {
+    console.log("message:", data);
+
+    // send message to ALL connected clients with username and timestamp
+    io.emit("chat message", {
+      username: data.username,
+      message: data.message,
+      timestamp: new Date().toISOString(),
+      socketId: socket.id
+    });
+  });
+
   socket.on("disconnect", () => {
-    console.log("user disconnected");
+    console.log("user disconnected:", socket.id);
   });
 });
 

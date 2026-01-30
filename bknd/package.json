@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "description": "my first socket.io app",
   "type": "module",
+  "scripts": {
+    "dev": "node index.js",
+    "start": "node index.js"
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^4.22.1",
